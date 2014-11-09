@@ -18,6 +18,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".RssItemsActivity"
+            android:label="@string/title_activity_rss_feed_items"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cleancoder.interviews.rssreader.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

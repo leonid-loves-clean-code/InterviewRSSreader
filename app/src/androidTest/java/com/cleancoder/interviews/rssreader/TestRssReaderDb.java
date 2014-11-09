@@ -78,6 +78,8 @@ public class TestRssReaderDb extends AndroidTestCase {
 
         assertEquals(insertedRowId, id);
         assertEquals(testUrl, url);
+
+        mContext.deleteDatabase(RssReaderDbHelper.DATABASE_NAME);
     }
 
 
@@ -152,6 +154,8 @@ public class TestRssReaderDb extends AndroidTestCase {
         assertEquals(testTitle, title);
         assertEquals(testDescription, description);
         assertEquals(testTimeStamp, timeStamp);
+
+        mContext.deleteDatabase(RssReaderDbHelper.DATABASE_NAME);
     }
 
 
@@ -241,6 +245,8 @@ public class TestRssReaderDb extends AndroidTestCase {
         assertEquals(testItemLink, link);
         assertEquals(testItemTimeStamp, timeStamp);
         assertEquals(insertedFeedRowId, feedId);
+
+        mContext.deleteDatabase(RssReaderDbHelper.DATABASE_NAME);
     }
 
 }

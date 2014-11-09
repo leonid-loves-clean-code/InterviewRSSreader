@@ -8,5 +8,7 @@
     <string name="loading_rss_feed_with_title">Loading RSS feed</string>
     <string name="retry">Retry</string>
     <string name="no_rss_feeds">No RSS feeds</string>
+    <string name="title_activity_rss_feed_items">Rss Feed Items</string>
+    <string name="rss_feed_is_empty">RSS feed is empty</string>
 
 </resources>

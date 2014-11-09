@@ -182,11 +182,13 @@ public class RssFeedsLoaderFragment extends TaskFragment {
         row.put(RssFeedEntry.COLUMN_DESCRIPTION, description);
         row.put(RssFeedEntry.COLUMN_URL, url);
         row.put(RssFeedEntry.COLUMN_TIME_STAMP, timeStamp);
-        long rowId = writableDatabase.insert(RssFeedEntry.TABLE_NAME, null, row);
-        if (rowId == -1) {
-            addToLog("Couldn't save feed: " + title, null);
+        try {
+            long feedId = writableDatabase.insertOrThrow(RssFeedEntry.TABLE_NAME, null, row);
+            saveItems(feedId, rssAdapter.getItems());
+        } catch (RuntimeException exception) {
+            addToLog("Couldn't save feed: " + title, exception);
+            throw exception;
         }
-        saveItems(rowId, rssAdapter.getItems());
     }
 
     private void saveItems(long feedId, List<TableRow> items) {

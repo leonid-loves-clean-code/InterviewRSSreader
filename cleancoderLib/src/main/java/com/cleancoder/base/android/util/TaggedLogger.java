@@ -10,14 +10,18 @@ public class TaggedLogger {
     private final String tag;
 
     public static TaggedLogger forClass(Class<?> someClass) {
-        return new TaggedLogger(someClass.getName());
+        return withTag(someClass.getName());
+    }
+
+    public static TaggedLogger withTag(String tag) {
+        return new TaggedLogger(tag);
     }
 
     public static TaggedLogger forInstance(Object instance) {
         return forClass(instance.getClass());
     }
 
-    public TaggedLogger(String tag) {
+    private TaggedLogger(String tag) {
         this.tag = tag;
     }
 

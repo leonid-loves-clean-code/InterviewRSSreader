@@ -1,10 +1,10 @@
 package com.cleancoder.base.android.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
@@ -17,44 +17,20 @@ import com.cleancoder.base.common.util.IOUtils;
  */
 public abstract class DatabaseListFragment extends android.support.v4.app.ListFragment {
 
-    public static interface Callbacks {
-        void onItemClicked(Cursor cursor);
-    }
-
-    private static final Callbacks DUMMY_CALLBACKS = new Callbacks() {
-        @Override
-        public void onItemClicked(Cursor cursor) {
-            // do nothing
-        }
-    };
-
     protected interface Helper {
         SQLiteOpenHelper createSQLiteOpenHelper(Context context);
         Cursor query(SQLiteDatabase db);
         String[] getColumnsToDisplay();
         int[] getViewIds();
         int getListItemLayoutId();
-        void setEmptyText();
+        CharSequence getEmptyText();
     }
 
-    private Callbacks callbacks;
     private Cursor cursor;
     private Helper helper;
     private SimpleCursorAdapter adapter;
     private SQLiteDatabase db;
     private SQLiteOpenHelper dbHelper;
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        callbacks = (Callbacks) activity;
-    }
-
-    @Override
-    public void onDetach() {
-        callbacks = DUMMY_CALLBACKS;
-        super.onDetach();
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,8 +47,23 @@ public abstract class DatabaseListFragment extends android.support.v4.app.ListFr
     }
 
     private void init() {
-        helper.setEmptyText();
-        cursor = prepareCursor();
+        setEmptyText(helper.getEmptyText());
+        AsyncTask<Void,Void,Cursor> task = new AsyncTask<Void,Void,Cursor>() {
+            @Override
+            protected Cursor doInBackground(Void... params) {
+                return prepareCursor();
+            }
+
+            @Override
+            protected void onPostExecute(Cursor cursor) {
+                super.onPostExecute(cursor);
+                onCursorIsReady(cursor);
+            }
+        };
+        task.execute();
+    }
+
+    private void onCursorIsReady(final Cursor cursor) {
         if (adapter == null) {
             adapter = createAdapter(cursor);
         } else {
@@ -82,10 +73,13 @@ public abstract class DatabaseListFragment extends android.support.v4.app.ListFr
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                onItemClicked(position);
+                cursor.moveToPosition(position);
+                onItemClicked(cursor);
             }
         });
     }
+
+    protected abstract void onItemClicked(Cursor cursor);
 
     private SimpleCursorAdapter createAdapter(Cursor cursor) {
         return new SimpleCursorAdapter(
@@ -103,10 +97,6 @@ public abstract class DatabaseListFragment extends android.support.v4.app.ListFr
         return helper.query(db);
     }
 
-    private void onItemClicked(int position) {
-        cursor.moveToPosition(position);
-        callbacks.onItemClicked(cursor);
-    }
 
     @Override
     public void onStop() {
