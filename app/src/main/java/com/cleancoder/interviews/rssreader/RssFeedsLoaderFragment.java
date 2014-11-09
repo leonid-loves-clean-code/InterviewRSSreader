@@ -2,6 +2,7 @@ package com.cleancoder.interviews.rssreader;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -35,14 +36,65 @@ public class RssFeedsLoaderFragment extends TaskFragment {
         List<String> getUrls();
     }
 
-    public static interface RssFeedLoader {
-        RssAdapter loadRssFeed(String url) throws Exception;
+    public static abstract class RssFeedLoader {
+        private final SQLiteDatabase writableDatabase;
+        private final TaskFragment taskFragment;
+        private final List<String> log;
+
+        public RssFeedLoader(TaskFragment taskFragment, SQLiteDatabase writableDatabase, List<String> log) {
+            this.taskFragment = taskFragment;
+            this.writableDatabase = writableDatabase;
+            this.log = log;
+        }
+
+        public void loadAndSave(String url) throws Exception {
+            RssAdapter rssAdapter = loadRssFeed(url);
+            TableRow feedMetadata = rssAdapter.getFeedMetadata();
+            ContentValues row = new ContentValues();
+            String title = feedMetadata.<String>get(RssFeedEntry.COLUMN_TITLE);
+            String description = feedMetadata.<String>get(RssFeedEntry.COLUMN_DESCRIPTION);
+            long timeStamp = feedMetadata.<Long>get(RssFeedEntry.COLUMN_TIME_STAMP);
+
+            taskFragment.setStatus(taskFragment.getString(R.string.loading_rss_feed_with_title) + ": " + title);
+
+            row.put(RssFeedEntry.COLUMN_TITLE, title);
+            row.put(RssFeedEntry.COLUMN_DESCRIPTION, description);
+            row.put(RssFeedEntry.COLUMN_URL, url);
+            row.put(RssFeedEntry.COLUMN_TIME_STAMP, timeStamp);
+            try {
+                long feedId = writableDatabase.insertOrThrow(RssFeedEntry.TABLE_NAME, null, row);
+                saveItems(feedId, rssAdapter.getItems());
+            } catch (RuntimeException exception) {
+                addToLog(log, "Couldn't save feed: " + title, exception);
+                throw exception;
+            }
+        }
+
+        private void saveItems(long feedId, List<TableRow> items) {
+            ContentValues row = new ContentValues();
+            for (TableRow item : items) {
+                try {
+                    saveItem(row, feedId, item);
+                } catch (Throwable exception) {
+                    String title = item.<String>get(RssItemEntry.COLUMN_TITLE);
+                    addToLog(log, "Can't save rss item: " + title, exception);
+                }
+            }
+        }
+
+        private void saveItem(ContentValues row, long feedId, TableRow item) {
+            row.put(RssItemEntry.COLUMN_FEED_ID, feedId);
+            row.put(RssItemEntry.COLUMN_TITLE, item.<String>get(RssItemEntry.COLUMN_TITLE));
+            row.put(RssItemEntry.COLUMN_DESCRIPTION, item.<String>get(RssItemEntry.COLUMN_DESCRIPTION));
+            row.put(RssItemEntry.COLUMN_LINK, item.<String>get(RssItemEntry.COLUMN_LINK));
+            row.put(RssItemEntry.COLUMN_TIME_STAMP, item.<Long>get(RssItemEntry.COLUMN_TIME_STAMP));
+            writableDatabase.insert(RssItemEntry.TABLE_NAME, null, row);
+        }
+
+        protected abstract RssAdapter loadRssFeed(String url) throws Exception;
     }
 
-    private static final DefaultRssFeedUrlsProvider
-            DEFAULT_RSS_FEED_URLS_PROVIDER = new DummyDefaultRssFeedUrlsProvider();
-
-    private static final RssFeedLoader RSS_FEED_LOADER = new MatshofmanRssFeedLoader();
+    private static final DefaultRssFeedUrlsProvider DEFAULT_RSS_FEED_URLS_PROVIDER = new DummyDefaultRssFeedUrlsProvider();
 
     private Callbacks callbacks;
     private List<String> log;
@@ -107,15 +159,15 @@ public class RssFeedsLoaderFragment extends TaskFragment {
         int numberOfLoadedRssFeeds = 0;
         for (String url : loadRssFeedUrls()) {
             try {
-                RssAdapter rssAdapter = RSS_FEED_LOADER.loadRssFeed(url);
-                save(rssAdapter);
+                RssFeedLoader rssFeedLoader = new MatshofmanRssFeedLoader(this, writableDatabase, log);
+                rssFeedLoader.loadAndSave(url);
                 ++numberOfLoadedRssFeeds;
             } catch (SAXException xmlException) {
-                addToLog("Couldn't parse rss feed from url: " + url, xmlException);
+                addToLog(log, "Couldn't parse rss feed from url: " + url, xmlException);
             }
         }
         if (numberOfLoadedRssFeeds < 1) {
-            addToLog("Couldn't load rss feeds", null);
+            addToLog(log, "Couldn't load rss feeds", null);
         }
     }
 
@@ -131,8 +183,14 @@ public class RssFeedsLoaderFragment extends TaskFragment {
     }
 
     private void prepareDefaultRssFeedUrls() {
+        List<String> urls = new ArrayList<String>(DEFAULT_RSS_FEED_URLS_PROVIDER.getUrls());
+        Intent intent = getActivity().getIntent();
+        if (intent.hasExtra(RssFeedsActivity.KEY_RSS_FEED_URLS)) {
+            List<String> passedUrls = (List<String>) intent.getSerializableExtra(RssFeedsActivity.KEY_RSS_FEED_URLS);
+            urls.addAll(passedUrls);
+        }
         ContentValues row = new ContentValues();
-        for (String url : DEFAULT_RSS_FEED_URLS_PROVIDER.getUrls()) {
+        for (String url : urls) {
             row.put(RssFeedUrlEntry.COLUMN_URL, url);
             writableDatabase.insert(RssFeedUrlEntry.TABLE_NAME, null, row);
         }
@@ -156,7 +214,7 @@ public class RssFeedsLoaderFragment extends TaskFragment {
         return urls;
     }
 
-    private void addToLog(String message, Throwable exception) {
+    private static void addToLog(List<String> log, String message, Throwable exception) {
         log.add("====================");
         log.add("--------------------");
         if (message != null) {
@@ -186,7 +244,7 @@ public class RssFeedsLoaderFragment extends TaskFragment {
             long feedId = writableDatabase.insertOrThrow(RssFeedEntry.TABLE_NAME, null, row);
             saveItems(feedId, rssAdapter.getItems());
         } catch (RuntimeException exception) {
-            addToLog("Couldn't save feed: " + title, exception);
+            addToLog(log, "Couldn't save feed: " + title, exception);
             throw exception;
         }
     }
@@ -198,7 +256,7 @@ public class RssFeedsLoaderFragment extends TaskFragment {
                 saveItem(row, feedId, item);
             } catch (Throwable exception) {
                 String title = item.<String>get(RssItemEntry.COLUMN_TITLE);
-                addToLog("Can't save rss item: " + title, exception);
+                addToLog(log, "Can't save rss item: " + title, exception);
             }
         }
     }

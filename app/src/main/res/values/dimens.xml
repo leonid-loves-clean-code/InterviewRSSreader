@@ -8,4 +8,11 @@
     <dimen name="rss_feeds_list_item_padding_right">12dp</dimen>
     <dimen name="rss_feeds_list_item_padding_top">8dp</dimen>
     <dimen name="rss_feeds_list_item_padding_bottom">8dp</dimen>
+    <dimen name="vertical_space_between_rss_item_title_and_description">32dp</dimen>
+    <dimen name="rss_item_title_text_size">32sp</dimen>
+    <dimen name="rss_item_description_text_size">20sp</dimen>
+    <dimen name="dialog_add_feed_margin_top">16dp</dimen>
+    <dimen name="dialog_add_feed_margin_left">4dp</dimen>
+    <dimen name="dialog_add_feed_margin_right">4dp</dimen>
+    <dimen name="dialog_add_feed_margin_bottom">4dp</dimen>
 </resources>

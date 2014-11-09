@@ -1,5 +1,8 @@
 package com.cleancoder.interviews.rssreader.rssmatshofman;
 
+import android.database.sqlite.SQLiteDatabase;
+
+import com.cleancoder.base.android.ui.TaskFragment;
 import com.cleancoder.base.common.data.TableRow;
 import com.cleancoder.interviews.rssreader.RssFeedsLoaderFragment;
 import com.cleancoder.interviews.rssreader.data.RssAdapter;
@@ -16,9 +19,13 @@ import nl.matshofman.saxrssreader.RssReader;
 /**
  * Created by Leonid on 09.11.2014.
  */
-public class MatshofmanRssFeedLoader implements RssFeedsLoaderFragment.RssFeedLoader {
+public class MatshofmanRssFeedLoader extends RssFeedsLoaderFragment.RssFeedLoader {
 
     private static final MatshofmanRssConverter RSS_CONVERTER = new MatshofmanRssConverter();
+
+    public MatshofmanRssFeedLoader(TaskFragment taskFragment, SQLiteDatabase writableDatabase, List<String> log) {
+        super(taskFragment, writableDatabase, log);
+    }
 
     @Override
     public RssAdapter loadRssFeed(String url) throws Exception {

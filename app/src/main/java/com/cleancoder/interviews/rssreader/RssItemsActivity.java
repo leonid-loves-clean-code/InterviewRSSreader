@@ -33,7 +33,9 @@ public class RssItemsActivity extends ActivityHelper implements RssItemsFragment
     @Override
     public void onRssItemClicked(long rssItemId) {
         ToastUtils.SHORT.show(this, "RSS item (" + rssItemId + ") clicked");
-        // TODO
+        Intent intent = new Intent(this, RssItemActivity.class);
+        RssItemActivity.putArguments(intent, rssItemId);
+        startActivity(intent);
     }
 
 }

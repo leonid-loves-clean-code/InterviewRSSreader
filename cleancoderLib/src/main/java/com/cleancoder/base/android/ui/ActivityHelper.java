@@ -42,4 +42,9 @@ public class ActivityHelper extends ActionBarActivity {
         }
     }
 
+    public void refreshActivity() {
+        finish();
+        startActivity(getIntent());
+    }
+
 }

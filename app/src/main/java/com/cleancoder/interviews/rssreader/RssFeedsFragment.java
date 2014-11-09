@@ -1,12 +1,23 @@
 package com.cleancoder.interviews.rssreader;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.webkit.URLUtil;
+import android.widget.EditText;
 
 import com.cleancoder.base.android.ui.DatabaseListFragment;
+import com.cleancoder.base.android.ui.ToastUtils;
 import com.cleancoder.interviews.rssreader.data.RssReaderContract.RssFeedEntry;
 import com.cleancoder.interviews.rssreader.data.RssReaderDbHelper;
 
@@ -17,11 +28,17 @@ public class RssFeedsFragment extends DatabaseListFragment {
 
     public static interface Callbacks {
         void onRssFeedClicked(long rssFeedId);
+        void onNeedToAddRssFeed(String url);
     }
 
     private static final Callbacks DUMMY_CALLBACKS = new Callbacks() {
         @Override
         public void onRssFeedClicked(long rssFeedId) {
+            // do nothing
+        }
+
+        @Override
+        public void onNeedToAddRssFeed(String url) {
             // do nothing
         }
     };
@@ -96,4 +113,65 @@ public class RssFeedsFragment extends DatabaseListFragment {
         super.onDetach();
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_rss_feed, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_add_rss_feed:
+                onAddRssFeed();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void onAddRssFeed() {
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        final View dialogLayout = inflater.inflate(R.layout.dialog_add_feed, null);
+        final EditText inputView = (EditText) dialogLayout.findViewById(R.id.item_added);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setView(dialogLayout).setTitle(R.string.add_rss_feed);
+        builder.setPositiveButton(R.string.add_rss_feed_positive_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                String url =  inputView.getText().toString();
+                if (!URLUtil.isValidUrl(url)) {
+                    notifyUserThatUrlIsInvalid();
+                } else {
+                    onUserAddedRssFeed(url);
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void onUserAddedRssFeed(String url) {
+        /*
+        List<String> urls = Arrays.asList(url);
+        getActivity().getIntent().putExtra(RssFeedsActivity.KEY_RSS_FEED_URLS, (Serializable) urls);
+        ((ActivityHelper) getActivity()).refreshActivity();
+        */
+        callbacks.onNeedToAddRssFeed(url);
+    }
+
+    private void notifyUserThatUrlIsInvalid() {
+        ToastUtils.SHORT.show(getActivity(), R.string.add_rss_feed_notification_url_is_invalid);
+    }
 }

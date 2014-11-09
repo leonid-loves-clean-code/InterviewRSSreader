@@ -11,10 +11,13 @@ import com.cleancoder.base.android.util.TaggedLogger;
 import java.util.List;
 
 
-public class MainActivity extends ActivityHelper
+public class RssFeedsActivity extends ActivityHelper
                     implements RssFeedsLoaderFragment.Callbacks,
                                ExceptionDisplayFragment.Callbacks,
-                               RssFeedsFragment.Callbacks {
+                               RssFeedsFragment.Callbacks,
+                               RssFeedAddedByUserLoaderFragment.Callbacks {
+
+    public static final String KEY_RSS_FEED_URLS = "rss_feed_urls";
 
     private static final TaggedLogger logger = TaggedLogger.withTag("RSS feed loading log");
 
@@ -40,14 +43,14 @@ public class MainActivity extends ActivityHelper
 
     @Override
     public void onRssFeedsLoaded(List<String> log) {
-        // TODO do something with <log>
-        debug(log);
+        // TODO do something useful with <log>
+        debugLog(log);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, new RssFeedsFragment())
                 .commit();
     }
 
-    private void debug(List<String> log) {
+    public static void debugLog(List<String> log) {
         for (String message : log) {
             logger.debug(message);
             logger.debug("     ");
@@ -85,6 +88,33 @@ public class MainActivity extends ActivityHelper
         Intent intent = new Intent(this, RssItemsActivity.class);
         RssItemsActivity.putArguments(intent, rssFeedId);
         startActivity(intent);
+    }
+
+    @Override
+    public void onNeedToAddRssFeed(String url) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.layout_in_center, RssFeedAddedByUserLoaderFragment.newInstance(url))
+                .commit();
+    }
+
+    @Override
+    public void onRssFeedAddedSuccessFully(RssFeedAddedByUserLoaderFragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .remove(fragment)
+                .replace(R.id.container, new RssFeedsFragment())
+                .commit();
+        logger.debug("on added successfully");
+    }
+
+    @Override
+    public void onExceptionWhileAddingRssFeed(RssFeedAddedByUserLoaderFragment fragment, Throwable exception) {
+        getSupportFragmentManager().beginTransaction()
+                .remove(fragment)
+                .commit();
+        logger.debug("on exception");
+        String message = getString(R.string.cannot_add_rss_feed) + "\n" +
+                getString(R.string.cause) + ": " + exception.getMessage();
+        ToastUtils.LONG.show(this, message);
     }
 
 }
