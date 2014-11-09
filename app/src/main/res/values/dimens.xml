@@ -2,4 +2,10 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="exception_display_fragment_details_text_size">20sp</dimen>
+    <dimen name="vertical_space_between_exception_details_and_button">20dp</dimen>
+    <dimen name="rss_feeds_list_item_padding_left">12dp</dimen>
+    <dimen name="rss_feeds_list_item_padding_right">12dp</dimen>
+    <dimen name="rss_feeds_list_item_padding_top">8dp</dimen>
+    <dimen name="rss_feeds_list_item_padding_bottom">8dp</dimen>
 </resources>

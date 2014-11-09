@@ -1,10 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nl.matshofman.saxrssreader">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application 
         android:label="@string/app_name"
-        android:icon="@drawable/ic_launcher"
->
+        android:icon="@drawable/ic_launcher" >
 
     </application>
 

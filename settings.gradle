@@ -1,1 +1,1 @@
-include ':app', ':cleancoderLib'
+include ':app', ':cleancoderLib', ':rssReaderLib'

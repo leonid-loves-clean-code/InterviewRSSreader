@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.cleancoder.base.R;
 
@@ -24,7 +25,7 @@ public abstract class TaskFragment extends android.support.v4.app.Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.progress_bar_at_center, null);
+        return inflater.inflate(R.layout.fragment_task, null);
     }
 
     @Override
@@ -44,5 +45,27 @@ public abstract class TaskFragment extends android.support.v4.app.Fragment {
     }
 
     protected abstract void startTask();
+
+    public void setStatus(final String text) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getStatusTextView().setText(text);
+            }
+        });
+    }
+
+    private TextView getStatusTextView() {
+        return (TextView) getView().findViewById(R.id.status_text_view);
+    }
+
+    public void setStatus(final int resId) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getStatusTextView().setText(resId);
+            }
+        });
+    }
 
 }

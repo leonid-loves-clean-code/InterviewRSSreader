@@ -14,8 +14,11 @@ import java.util.Set;
  * Created by Leonid Semyonov (clean-coder-xyz) on 03.11.2014.
  */
 public class TableRow implements Serializable {
-    private final int numberOfColumns;
     private final Map<String,Object> fields;
+
+    public TableRow() {
+        fields = new HashMap<String, Object>();
+    }
 
     public TableRow(String... columns) {
         this(Arrays.asList(columns));
@@ -27,7 +30,6 @@ public class TableRow implements Serializable {
         for (String column : columns) {
             fields.put(column, null);
         }
-        numberOfColumns = columns.size();
     }
 
     private static void checkColumns(Collection<String> columns) {
@@ -47,8 +49,11 @@ public class TableRow implements Serializable {
         }
     }
 
+    public TableRow(TableRow other) {
+        this.fields = new HashMap<String, Object>(other.fields);
+    }
+
     public void set(String column, Object value) {
-        checkColumn(column);
         fields.put(column, value);
     }
 
@@ -64,7 +69,7 @@ public class TableRow implements Serializable {
     }
 
     public int getNumberOfColumns() {
-        return numberOfColumns;
+        return fields.keySet().size();
     }
 
     @Override

@@ -4,5 +4,9 @@
     <string name="app_name">InterviewRSSreader</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="loading_rss_feeds">Loading RSS feeds</string>
+    <string name="loading_rss_feed_with_title">Loading RSS feed</string>
+    <string name="retry">Retry</string>
+    <string name="no_rss_feeds">No RSS feeds</string>
 
 </resources>

@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/InterviewRSSreader.iml" filepath="$PROJECT_DIR$/InterviewRSSreader.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/cleancoderLib/cleancoderLib.iml" filepath="$PROJECT_DIR$/cleancoderLib/cleancoderLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rssReaderLib/rssReaderLib.iml" filepath="$PROJECT_DIR$/rssReaderLib/rssReaderLib.iml" />
     </modules>
   </component>
 </project>
