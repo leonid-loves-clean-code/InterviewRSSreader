@@ -6,10 +6,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.cleancoder.base.common.data.TableRow;
-import com.cleancoder.interviews.rssreader.data.RssReaderContract.*;
+import com.cleancoder.base.common.util.HtmlUtils;
+import com.cleancoder.interviews.rssreader.data.RssReaderContract.RssItemEntry;
 
 /**
  * Created by Leonid on 10.11.2014.
@@ -41,8 +43,15 @@ public class RssItemFragment extends Fragment {
         String description = rssItem.<String>get(RssItemEntry.COLUMN_DESCRIPTION);
         TextView titleTextView = (TextView) contentView.findViewById(R.id.title_text_view);
         TextView descriptionTextView = (TextView) contentView.findViewById(R.id.description_text_view);
+        WebView descriptionWebView = (WebView) contentView.findViewById(R.id.description_web_view);
         titleTextView.setText(title);
-        descriptionTextView.setText(description);
+        if (HtmlUtils.containsHtml(description)) {
+            descriptionWebView.loadData(description, "text/html", null);
+            descriptionTextView.setVisibility(View.INVISIBLE);
+        } else {
+            descriptionTextView.setText(description);
+            descriptionWebView.setVisibility(View.INVISIBLE);
+        }
     }
 
 }

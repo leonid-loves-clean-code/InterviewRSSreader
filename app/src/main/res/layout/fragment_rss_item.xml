@@ -16,17 +16,30 @@
         android:layout_width="1dp"
         android:layout_height="@dimen/vertical_space_between_rss_item_title_and_description" />
 
-    <ScrollView
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_weight="1"
         android:layout_height="0dp">
 
-        <TextView
-            android:id="@+id/description_text_view"
-            android:textSize="@dimen/rss_item_description_text_size"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent">
 
-    </ScrollView>
+            <TextView
+                android:id="@+id/description_text_view"
+                android:textSize="@dimen/rss_item_description_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </ScrollView>
+
+        <WebView
+            android:id="@+id/description_web_view"
+            android:textSize="@dimen/rss_item_description_text_size"
+            android:background="@android:color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </RelativeLayout>
 
 </LinearLayout>
